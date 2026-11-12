@@ -11,7 +11,7 @@ async def lifespan(_: FastAPI):
     yield
     await engine.dispose()
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="Todo API")
 app.include_router(task_router)
 
 app.add_middleware(
