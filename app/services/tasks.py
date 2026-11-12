@@ -14,26 +14,37 @@ class TaskService:
         self.session = session
         self.repository = TaskRepository(session)
     
+
     async def list_tasks(self) -> list[TaskORM]:
         return await self.repository.get_all()
 
-    async def create_task(self, data: TaskCreateSchema) -> TaskORM:
-        new_task = await self.repository.create(task_title=data.title)
+
+    async def create_task(self, payload: TaskCreateSchema) -> TaskORM:
+        new_task = await self.repository.create(
+            task_title=payload.title, 
+            task_description=payload.description
+        )
         await self.session.commit()
         return new_task
 
-    async def update_task(self, task_id: str, data: TaskUpdateSchema) -> TaskORM:
-        update_task = await self.repository.get_by_id(task_id=task_id)
+
+    async def update_task(self, task_id: str, payload: TaskUpdateSchema) -> TaskORM:
+        update_task = await self.repository.get_by_id(
+            task_id=task_id
+        )
         if not update_task:
             raise TaskNotFoundError()
 
-        if data.title is not None:
-            update_task.title =  data.title
-        if data.completed is not None:
-            update_task.completed = data.completed
+        if payload.title is not None:
+            update_task.title =  payload.title
+        if payload.completed is not None:
+            update_task.completed = payload.completed
+        if payload.description is not None: 
+            update_task.description = payload.description
 
         await self.session.commit()
         return update_task
+
 
     async def delete_task(self, task_id: str) -> None:
         del_task = await self.repository.get_by_id(task_id=task_id)
