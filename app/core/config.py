@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5439
     POSTGRES_DB: str = 'todo_db'
 
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     @property
     def DATABASE_URL(self):
         return f'postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}'
