@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tasks import TaskORM
 from app.schemas.tasks import TaskUpdateSchema
@@ -10,9 +10,9 @@ class TaskNotFoundError(Exception):
 
 
 class TaskService:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-        self.repository = TaskRepository(session)
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.repository = TaskRepository(db)
     
 
     async def list_tasks(self) -> list[TaskORM]:
@@ -24,7 +24,7 @@ class TaskService:
             task_title=payload.title, 
             task_description=payload.description
         )
-        await self.session.commit()
+        await self.db.commit()
         return new_task
 
 
@@ -42,7 +42,7 @@ class TaskService:
         if payload.description is not None: 
             update_task.description = payload.description
 
-        await self.session.commit()
+        await self.db.commit()
         return update_task
 
 
@@ -52,4 +52,4 @@ class TaskService:
             raise TaskNotFoundError()
 
         await self.repository.delete(task=del_task)
-        await self.session.commit()
+        await self.db.commit()
