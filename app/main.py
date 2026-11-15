@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.db.session import engine
 from app.api.routers.tasks import router as task_router
-
+from app.api.routers.auth import router as auth_router
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -13,6 +13,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="Todo API")
 app.include_router(task_router)
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,
