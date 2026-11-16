@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.tasks import TaskORM
 from sqlalchemy import select
 
@@ -17,7 +17,7 @@ class TaskRepository:
         return await self.db.get(TaskORM, task_id)
 
 
-    async def create(self, task_title: str, task_description: str| None = None) -> TaskORM:
+    async def create(self, task_title: str, task_description: str | None = None) -> TaskORM:
         new_task = TaskORM(title=task_title, description=task_description)
         self.db.add(new_task)
         await self.db.flush()
