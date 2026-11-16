@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.dependencies import get_auth_service
+from app.api.dependencies import get_auth_service, get_current_user
 from app.services.auth import AuthService, EmailAlreadyExistsError, InvalidCredentialsError
-from app.schemas.users import TokenSchema
-from app.schemas.users import UserCreateSchema, UserLoginSchema
+from app.schemas.users import TokenSchema, UserCreateSchema, UserLoginSchema, UserSchema
+from app.models.user import UserORM
+
 
 router = APIRouter(prefix='/auth', tags=['auth'])
+
 
 @router.post('/register', status_code=status.HTTP_201_CREATED, response_model=TokenSchema)
 async def user_register(payload: UserCreateSchema, auth_service: AuthService = Depends(get_auth_service)):
@@ -21,6 +23,8 @@ async def user_login(payload: UserLoginSchema, auth_service: AuthService = Depen
         return await auth_service.login(payload)
     except InvalidCredentialsError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid login or password')
-    
 
 
+@router.get("/me", response_model=UserSchema)
+async def get_me(current_user: UserORM = Depends(get_current_user)) -> UserORM:
+    return current_user

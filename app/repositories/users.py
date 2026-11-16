@@ -19,3 +19,6 @@ class UserRepository:
         self.db.add(user)
         await self.db.flush()
         return user
+
+    async def get_by_id(self, user_id: str) -> UserORM | None:
+        return await self.db.get(UserORM, user_id)
