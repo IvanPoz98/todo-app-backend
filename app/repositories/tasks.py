@@ -8,8 +8,8 @@ class TaskRepository:
         self.db = db
     
 
-    async def get_all(self) -> list[TaskORM]:
-        result = await self.db.scalars(select(TaskORM))
+    async def get_all(self, user_id: str) -> list[TaskORM]:
+        result = await self.db.scalars(select(TaskORM).where(TaskORM.user_id == user_id))
         return list(result.all())
 
 
@@ -17,8 +17,8 @@ class TaskRepository:
         return await self.db.get(TaskORM, task_id)
 
 
-    async def create(self, task_title: str, task_description: str | None = None) -> TaskORM:
-        new_task = TaskORM(title=task_title, description=task_description)
+    async def create(self, task_title: str, user_id: str, task_description: str | None = None) -> TaskORM:
+        new_task = TaskORM(title=task_title, description=task_description, user_id=user_id)
         self.db.add(new_task)
         await self.db.flush()
         return new_task
