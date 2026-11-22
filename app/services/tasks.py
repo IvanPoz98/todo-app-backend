@@ -15,25 +15,28 @@ class TaskService:
         self.repository = TaskRepository(db)
     
 
-    async def list_tasks(self) -> list[TaskORM]:
-        return await self.repository.get_all()
+    async def list_tasks(self, user_id: str) -> list[TaskORM]:
+        return await self.repository.get_all(user_id)
 
 
-    async def create_task(self, payload: TaskCreateSchema) -> TaskORM:
+    async def create_task(self, payload: TaskCreateSchema, user_id: str) -> TaskORM:
         new_task = await self.repository.create(
             task_title=payload.title, 
-            task_description=payload.description
+            task_description=payload.description,
+            user_id=user_id
         )
         await self.db.commit()
         return new_task
 
 
-    async def update_task(self, task_id: str, payload: TaskUpdateSchema) -> TaskORM:
+    async def update_task(self, task_id: str, payload: TaskUpdateSchema, user_id: str) -> TaskORM:
         update_task = await self.repository.get_by_id(
             task_id=task_id
         )
-        if not update_task:
+
+        if update_task is None or update_task.user_id != user_id:
             raise TaskNotFoundError()
+
 
         if payload.title is not None:
             update_task.title =  payload.title
@@ -46,9 +49,9 @@ class TaskService:
         return update_task
 
 
-    async def delete_task(self, task_id: str) -> None:
+    async def delete_task(self, task_id: str, user_id: str) -> None:
         del_task = await self.repository.get_by_id(task_id=task_id)
-        if not del_task:
+        if del_task is None or del_task.user_id != user_id:
             raise TaskNotFoundError()
 
         await self.repository.delete(task=del_task)
